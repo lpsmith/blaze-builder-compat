@@ -49,10 +49,10 @@ import Control.Monad(when,unless)
 
 
 #if __GLASGOW_HASKELL__ >= 702
-import Foreign hiding (unsafeForeignPtrToPtr)
-import Foreign.ForeignPtr.Unsafe (unsafeForeignPtrToPtr)
-#else
 import Foreign
+import qualified Foreign.ForeignPtr.Unsafe as Unsafe
+#else
+import Foreign as Unsafe
 #endif
 
 
@@ -125,7 +125,7 @@ toByteStringIOWith !bufSize io builder = do
     S.mallocByteString bufSize >>= getBuffer (B.runBuilder builder) bufSize
   where
     getBuffer writer !size fp = do
-      let !ptr = unsafeForeignPtrToPtr fp
+      let !ptr = Unsafe.unsafeForeignPtrToPtr fp
       (bytes, next) <- writer ptr size
       case next of
         B.Done -> io $! S.PS fp 0 bytes
